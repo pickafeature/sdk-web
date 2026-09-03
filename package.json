@@ -1,0 +1,30 @@
+{
+  "name": "pickafeature",
+  "version": "0.1.0",
+  "description": "Embeddable feature-request board for any website. Users suggest, vote, and comment; you ship the right things.",
+  "license": "MIT",
+  "homepage": "https://pickafeature.com",
+  "keywords": ["feature requests", "feedback", "widget", "voting", "roadmap", "pickafeature"],
+  "type": "module",
+  "main": "./dist/pickafeature.esm.js",
+  "module": "./dist/pickafeature.esm.js",
+  "browser": "./dist/pickafeature.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/pickafeature.esm.js",
+      "default": "./dist/pickafeature.esm.js"
+    }
+  },
+  "files": ["dist", "README.md"],
+  "sideEffects": true,
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "typescript": "^5.0.0"
+  }
+}
