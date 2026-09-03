@@ -78,8 +78,24 @@ The widget renders inside a Shadow DOM so your CSS and its CSS never collide.
 The API key is a public project key (the same one shipped inside mobile apps);
 abuse is limited by per-key rate limiting on the server.
 
+## Hosted board and inline embed
+
+Every pick a feature project also has a hosted board at
+`https://pickafeature.com/b/<your-slug>` (copy the link from the dashboard). To
+render the board inline in your own page instead of as a popup, pass a container:
+
+```html
+<div id="feedback-board"></div>
+<script src="https://pickafeature.com/sdk/v1/pickafeature.js" data-api-key="YOUR_API_KEY" data-container="#feedback-board" defer></script>
+```
+
+or `PickAFeature.init({ apiKey, container: "#feedback-board" })`.
+
 ## Build
 
 ```bash
-npm run build   # → dist/ and ../../public/sdk/v1/pickafeature.js (ESM, CJS, IIFE + types)
+npm install
+npm run build   # dist/pickafeature.js (IIFE), .mjs (ESM), .cjs (CommonJS), types/
 ```
+
+This repo is mirrored from the pickafeature monorepo; issues and PRs are welcome here.

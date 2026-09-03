@@ -148,6 +148,7 @@ export class ApiClient {
     return {
       deviceId: getDeviceId(),
       userId: this.identity.id || undefined,
+      platform: "web",
     };
   }
 

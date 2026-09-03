@@ -90,6 +90,7 @@ if (typeof document !== "undefined") {
         primaryColor: ds.primaryColor,
         launcher: ds.launcher === "false" ? false : { position: (ds.position as "bottom-right" | "bottom-left") || "bottom-right", label: ds.label },
         showEmailField: ds.emailField !== "false",
+        container: ds.container || undefined,
       });
     if (document.body) boot();
     else document.addEventListener("DOMContentLoaded", boot, { once: true });

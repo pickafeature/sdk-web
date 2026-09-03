@@ -96,6 +96,16 @@ export const STYLES = `
 @media (min-width: 640px) {
   .pf-panel { border-radius: var(--pf-radius); max-height: 85vh; }
 }
+/* Inline (container) mode: the panel is a normal block, no overlay */
+.pf-inline { display: block; width: 100%; }
+.pf-inline .pf-panel {
+  max-width: none;
+  max-height: none;
+  min-height: 420px;
+  box-shadow: none;
+  border-radius: var(--pf-radius);
+  animation: none;
+}
 @keyframes pf-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes pf-rise { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {

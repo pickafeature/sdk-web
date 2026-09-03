@@ -6,10 +6,11 @@
 // and copies the IIFE build to ../../public/sdk/v1/pickafeature.js so the
 // Next.js site serves it at https://pickafeature.com/sdk/v1/pickafeature.js.
 //
-// Uses the esbuild/typescript already installed at the repo root, so run it from
-// there: `node packages/sdk_web/build.mjs` (or `npm run build` inside this dir).
+// Standalone: `npm install && npm run build`. Inside the pickafeature monorepo the
+// root node_modules already has esbuild/typescript, so `node packages/sdk_web/build.mjs`
+// works too.
 import { build } from "esbuild";
-import { copyFileSync, mkdirSync, readFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { execSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -39,11 +40,17 @@ await build({ ...common, format: "cjs", outfile: join(here, "dist/pickafeature.c
 // Types: emit declarations with tsc into dist/types.
 execSync(`npx tsc -p ${join(here, "tsconfig.json")} --noEmit false --emitDeclarationOnly --declaration --outDir ${join(here, "dist/types")}`, {
   stdio: "inherit",
-  cwd: join(here, "../.."),
+  cwd: here,
 });
 
-const publicDir = join(here, "../../public/sdk/v1");
-mkdirSync(publicDir, { recursive: true });
-copyFileSync(join(here, "dist/pickafeature.js"), join(publicDir, "pickafeature.js"));
-
-console.log(`built pickafeature web SDK v${pkg.version} → dist/ and public/sdk/v1/pickafeature.js`);
+// Inside the pickafeature monorepo the IIFE build is also served by the Next.js
+// site. In the standalone sdk-web checkout there is no ../../public, so skip.
+const sitePublic = join(here, "../../public");
+if (existsSync(sitePublic)) {
+  const publicDir = join(sitePublic, "sdk/v1");
+  mkdirSync(publicDir, { recursive: true });
+  copyFileSync(join(here, "dist/pickafeature.js"), join(publicDir, "pickafeature.js"));
+  console.log(`built pickafeature web SDK v${pkg.version} -> dist/ and public/sdk/v1/pickafeature.js`);
+} else {
+  console.log(`built pickafeature web SDK v${pkg.version} -> dist/`);
+}

@@ -120,6 +120,12 @@ export interface PickAFeatureOptions {
   strings?: Partial<Strings>;
   /** Render a floating "Feedback" button. Default false. */
   launcher?: boolean | LauncherOptions;
+  /**
+   * Render the board inline inside this element (selector or element) instead
+   * of as a modal. No overlay, launcher, or close button; the board is always
+   * open. Used by hosted board pages and for embedding a board in your own page.
+   */
+  container?: string | HTMLElement;
   /** Show the "Powered by pick a feature" footer. Default true. */
   poweredBy?: boolean;
   onOpen?: () => void;
@@ -222,7 +228,19 @@ export class PickAFeatureWidget {
     this.upvoted = getUpvotedIds();
 
     document.addEventListener("click", this.onDocClick);
-    if (opts.launcher) this.mount();
+    if (opts.container) this.open();
+    else if (opts.launcher) this.mount();
+  }
+
+  private get inline(): boolean {
+    return !!this.opts.container;
+  }
+
+  private resolveContainer(): HTMLElement {
+    const c = this.opts.container;
+    const el = typeof c === "string" ? document.querySelector<HTMLElement>(c) : c || null;
+    if (!el) throw new Error(`PickAFeature: container ${typeof c === "string" ? c : ""} not found`);
+    return el;
   }
 
   // ─── Public API ───
@@ -241,13 +259,13 @@ export class PickAFeatureWidget {
     this.view = "list";
     this.notice = "";
     this.renderOverlay();
-    document.addEventListener("keydown", this.onKeydown);
+    if (!this.inline) document.addEventListener("keydown", this.onKeydown);
     if (!this.loaded) void this.load();
     this.opts.onOpen?.();
   }
 
   close(): void {
-    if (!this.overlay) return;
+    if (!this.overlay || this.inline) return;
     this.overlay.remove();
     this.overlay = null;
     document.removeEventListener("keydown", this.onKeydown);
@@ -293,15 +311,15 @@ export class PickAFeatureWidget {
     const style = document.createElement("style");
     style.textContent = STYLES;
     this.shadow.append(style);
-    this.root = el("div", { className: "pf-root" });
+    this.root = el("div", { className: this.inline ? "pf-root pf-root-inline" : "pf-root" });
     this.shadow.append(this.root);
-    document.body.append(this.host);
+    (this.inline ? this.resolveContainer() : document.body).append(this.host);
 
     this.mediaQuery = window.matchMedia?.("(prefers-color-scheme: dark)") ?? null;
     this.mediaQuery?.addEventListener?.("change", this.applyThemeBound);
     this.applyTheme();
 
-    if (this.opts.launcher) this.renderLauncher();
+    if (this.opts.launcher && !this.inline) this.renderLauncher();
   }
 
   private applyTheme(): void {
@@ -416,10 +434,12 @@ export class PickAFeatureWidget {
 
   private renderOverlay(): void {
     if (!this.root) return;
-    this.overlay = el("div", { className: "pf-overlay" });
-    this.overlay.addEventListener("click", (e) => {
-      if (e.target === this.overlay) this.close();
-    });
+    this.overlay = el("div", { className: this.inline ? "pf-inline" : "pf-overlay" });
+    if (!this.inline) {
+      this.overlay.addEventListener("click", (e) => {
+        if (e.target === this.overlay) this.close();
+      });
+    }
     const panel = el("div", { className: "pf-panel", role: "dialog", "aria-modal": "true", "aria-label": this.strings.title });
     this.overlay.append(panel);
     this.root.append(this.overlay);
@@ -467,8 +487,11 @@ export class PickAFeatureWidget {
           });
           return b;
         })();
-    const closeBtn = el("button", { className: "pf-icon-btn", type: "button", "aria-label": s.close }, [icon("close")]);
-    closeBtn.addEventListener("click", () => this.close());
+    let closeBtn: HTMLElement | null = null;
+    if (!this.inline) {
+      closeBtn = el("button", { className: "pf-icon-btn", type: "button", "aria-label": s.close }, [icon("close")]);
+      closeBtn.addEventListener("click", () => this.close());
+    }
     return el("div", { className: "pf-header" }, [
       leading,
       el("div", { className: "pf-header-text" }, [
