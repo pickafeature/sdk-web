@@ -17,7 +17,7 @@ import { ApiClient, PickAFeatureError, clearLocalData, type FeatureComment, type
 export { PickAFeatureWidget, PickAFeatureError, ApiClient };
 export type { PickAFeatureOptions, Strings, Theme, FeatureComment, FeatureRequest, Identity };
 
-export const version = "0.1.0";
+export const version = "0.1.1";
 
 let instance: PickAFeatureWidget | null = null;
 
