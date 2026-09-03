@@ -1,7 +1,8 @@
 // Builds the web SDK three ways:
 //   dist/pickafeature.js       IIFE, exposes window.PickAFeature - for <script> tags
-//   dist/pickafeature.esm.js   ESM - for `import PickAFeature from "pickafeature"`
-//   dist/index.d.ts            types
+//   dist/pickafeature.mjs      ESM - for `import PickAFeature from "pickafeature"`
+//   dist/pickafeature.cjs      CommonJS - for `require("pickafeature")` (Jest, older tooling)
+//   dist/types/index.d.ts      types (package.json "types" points here)
 // and copies the IIFE build to ../../public/sdk/v1/pickafeature.js so the
 // Next.js site serves it at https://pickafeature.com/sdk/v1/pickafeature.js.
 //
@@ -32,14 +33,14 @@ await build({ ...common, format: "iife", globalName: "PickAFeature", outfile: jo
   // `export default` inside an IIFE would make window.PickAFeature = { default: {...}, init, ... }.
   // Flatten it so `PickAFeature.init(...)` works as documented.
   footer: { js: "PickAFeature=PickAFeature.default||PickAFeature;" } });
-await build({ ...common, format: "esm", outfile: join(here, "dist/pickafeature.esm.js") });
+await build({ ...common, format: "esm", outfile: join(here, "dist/pickafeature.mjs") });
+await build({ ...common, format: "cjs", outfile: join(here, "dist/pickafeature.cjs") });
 
-// Types: emit declarations with tsc into dist/types then keep index.d.ts as the entry.
+// Types: emit declarations with tsc into dist/types.
 execSync(`npx tsc -p ${join(here, "tsconfig.json")} --noEmit false --emitDeclarationOnly --declaration --outDir ${join(here, "dist/types")}`, {
   stdio: "inherit",
   cwd: join(here, "../.."),
 });
-copyFileSync(join(here, "dist/types/index.d.ts"), join(here, "dist/index.d.ts"));
 
 const publicDir = join(here, "../../public/sdk/v1");
 mkdirSync(publicDir, { recursive: true });

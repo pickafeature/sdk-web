@@ -81,5 +81,5 @@ abuse is limited by per-key rate limiting on the server.
 ## Build
 
 ```bash
-npm run build   # → dist/ and ../../public/sdk/v1/pickafeature.js
+npm run build   # → dist/ and ../../public/sdk/v1/pickafeature.js (ESM, CJS, IIFE + types)
 ```

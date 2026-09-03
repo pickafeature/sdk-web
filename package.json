@@ -4,24 +4,52 @@
   "description": "Embeddable feature-request board for any website. Users suggest, vote, and comment; you ship the right things.",
   "license": "MIT",
   "homepage": "https://pickafeature.com",
-  "keywords": ["feature requests", "feedback", "widget", "voting", "roadmap", "pickafeature"],
-  "type": "module",
-  "main": "./dist/pickafeature.esm.js",
-  "module": "./dist/pickafeature.esm.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pickafeature/sdk-web"
+  },
+  "bugs": {
+    "url": "https://github.com/pickafeature/sdk-web/issues"
+  },
+  "keywords": [
+    "feature requests",
+    "feedback",
+    "widget",
+    "voting",
+    "roadmap",
+    "pickafeature"
+  ],
+  "main": "./dist/pickafeature.cjs",
+  "module": "./dist/pickafeature.mjs",
   "browser": "./dist/pickafeature.js",
-  "types": "./dist/index.d.ts",
+  "unpkg": "./dist/pickafeature.js",
+  "jsdelivr": "./dist/pickafeature.js",
+  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/pickafeature.esm.js",
-      "default": "./dist/pickafeature.esm.js"
-    }
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/pickafeature.mjs",
+      "require": "./dist/pickafeature.cjs",
+      "default": "./dist/pickafeature.cjs"
+    },
+    "./package.json": "./package.json"
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "sideEffects": true,
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "build": "node build.mjs",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "prepublishOnly": "npm run build && npm run typecheck"
   },
   "devDependencies": {
     "esbuild": "^0.25.0",
