@@ -18,7 +18,7 @@ export { PickAFeatureWidget, PickAFeatureError, ApiClient };
 export { LOCALES, LOCALE_NAMES, SUPPORTED_LOCALES, resolveLocale } from "./locales";
 export type { PickAFeatureOptions, Strings, Theme, FeatureComment, FeatureRequest, Identity };
 
-export const version = "0.2.0";
+export const version = "0.2.1";
 
 let instance: PickAFeatureWidget | null = null;
 
@@ -89,6 +89,12 @@ if (typeof document !== "undefined") {
         apiKey,
         theme: (ds.theme as Theme) || "auto",
         locale: ds.locale || "auto",
+        // data-title="" / data-subtitle="" hide the board's own header, for
+        // pages that already have one above the inline container.
+        strings: {
+          ...(ds.title !== undefined ? { title: ds.title } : {}),
+          ...(ds.subtitle !== undefined ? { subtitle: ds.subtitle } : {}),
+        },
         primaryColor: ds.primaryColor,
         launcher: ds.launcher === "false" ? false : { position: (ds.position as "bottom-right" | "bottom-left") || "bottom-right", label: ds.label },
         showEmailField: ds.emailField !== "false",

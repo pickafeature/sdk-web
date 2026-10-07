@@ -461,7 +461,7 @@ export class PickAFeatureWidget {
         if (e.target === this.overlay) this.close();
       });
     }
-    const panel = el("div", { className: "pf-panel", role: "dialog", "aria-modal": "true", "aria-label": this.strings.title });
+    const panel = el("div", { className: "pf-panel", role: "dialog", "aria-modal": "true", "aria-label": this.strings.title || DEFAULT_STRINGS.title });
     this.overlay.append(panel);
     this.root.append(this.overlay);
     this.renderPanel();
@@ -478,7 +478,8 @@ export class PickAFeatureWidget {
     }
     panel.dataset.view = this.view;
     panel.replaceChildren();
-    panel.append(this.renderHeader());
+    const header = this.renderHeader();
+    if (header) panel.append(header);
     if (this.view === "list") panel.append(this.renderToolbar(), this.renderList());
     else if (this.view === "detail") panel.append(this.renderDetail());
     else panel.append(this.renderForm());
@@ -493,9 +494,13 @@ export class PickAFeatureWidget {
     if (this.view === "form") panel.querySelector<HTMLInputElement>(".pf-input")?.focus();
   }
 
-  private renderHeader(): HTMLElement {
+  // Returns null on the list view when there is nothing to show: inline
+  // boards that already have their own page heading pass empty title and
+  // subtitle strings to avoid a second header.
+  private renderHeader(): HTMLElement | null {
     const s = this.strings;
     const isRoot = this.view === "list";
+    if (isRoot && this.inline && !s.title && !s.subtitle) return null;
     const title = isRoot ? s.title : this.view === "form" ? s.suggest : this.tab === "completed" ? s.tabCompleted : s.tabPlanned;
     const leading = isRoot
       ? null

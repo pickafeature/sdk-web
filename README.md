@@ -23,7 +23,9 @@ Optional `data-` attributes on the script tag: `data-theme="light|dark|auto"`,
 `data-locale="auto|en|es|pt|fr|de|it|ja|ko|zh|ru|tr"` (UI language; `auto`
 follows the visitor's browser), `data-primary-color="#6366f1"`,
 `data-launcher="false"` (hide the floating button), `data-position="bottom-left"`,
-`data-label="Feedback"`, `data-email-field="false"`.
+`data-label="Feedback"`, `data-email-field="false"`, `data-title` and
+`data-subtitle` (board header text; set both to `""` on an inline board that
+already has a heading above it).
 
 ## npm
 
