@@ -6,7 +6,7 @@
   "homepage": "https://pickafeature.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pickafeature/sdk-web"
+    "url": "git+https://github.com/pickafeature/sdk-web.git"
   },
   "bugs": {
     "url": "https://github.com/pickafeature/sdk-web/issues"
