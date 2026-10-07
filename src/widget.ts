@@ -9,6 +9,7 @@ import {
   type Identity,
 } from "./api";
 import { STYLES } from "./styles";
+import { DEFAULT_LOCALE, LOCALES, resolveLocale } from "./locales";
 
 export type Theme = "light" | "dark" | "auto";
 
@@ -116,7 +117,13 @@ export interface PickAFeatureOptions {
   showEmailField?: boolean;
   /** Identify the signed-in user so their votes follow them across devices. */
   user?: Identity;
-  /** Override any UI text (for localization). */
+  /**
+   * UI language. "auto" (default) follows the visitor's browser language;
+   * otherwise a code like "es" or "pt". Unsupported codes fall back to English.
+   * See LOCALE_NAMES for the built-in set.
+   */
+  locale?: string;
+  /** Override any UI text. Applied on top of the locale's built-in strings. */
   strings?: Partial<Strings>;
   /** Render a floating "Feedback" button. Default false. */
   launcher?: boolean | LauncherOptions;
@@ -170,11 +177,11 @@ function icon(name: keyof typeof ICONS): HTMLElement {
   return el("span", { html: ICONS[name], "aria-hidden": "true", style: "display:inline-flex" });
 }
 
-function formatDate(iso: string): string {
+function formatDate(iso: string, locale?: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
   try {
-    return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+    return d.toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" });
   } catch {
     return d.toDateString();
   }
@@ -183,7 +190,8 @@ function formatDate(iso: string): string {
 export class PickAFeatureWidget {
   private opts: PickAFeatureOptions;
   private api: ApiClient;
-  private strings: Strings;
+  private strings: Strings = DEFAULT_STRINGS;
+  private locale: string = DEFAULT_LOCALE;
 
   private host: HTMLElement | null = null;
   private shadow: ShadowRoot | null = null;
@@ -224,7 +232,7 @@ export class PickAFeatureWidget {
     this.opts = opts;
     this.api = new ApiClient(opts.apiKey, opts.baseUrl);
     this.api.identity = opts.user || {};
-    this.strings = { ...DEFAULT_STRINGS, ...(opts.strings || {}) };
+    this.applyLocale();
     this.upvoted = getUpvotedIds();
 
     document.addEventListener("click", this.onDocClick);
@@ -282,7 +290,7 @@ export class PickAFeatureWidget {
 
   update(opts: Partial<PickAFeatureOptions>): void {
     this.opts = { ...this.opts, ...opts };
-    if (opts.strings) this.strings = { ...DEFAULT_STRINGS, ...this.opts.strings };
+    if (opts.strings || opts.locale) this.applyLocale();
     if (opts.user) this.api.identity = { ...this.api.identity, ...opts.user };
     this.applyTheme();
     if (this.overlay) this.renderPanel();
@@ -299,9 +307,21 @@ export class PickAFeatureWidget {
     this.launcherEl = null;
   }
 
-  // ─── Mount / theme ───
+  // ─── Mount / theme / locale ───
 
   private applyThemeBound = () => this.applyTheme();
+
+  // Strings resolve in three layers: English defaults, then the locale's
+  // built-in translation, then whatever the customer passed in `strings`.
+  private applyLocale(): void {
+    const requested = this.opts.locale || "auto";
+    this.locale =
+      requested === "auto"
+        ? resolveLocale(typeof navigator !== "undefined" ? navigator.languages || [navigator.language] : null)
+        : resolveLocale([requested]);
+    this.strings = { ...DEFAULT_STRINGS, ...(LOCALES[this.locale] || {}), ...(this.opts.strings || {}) };
+    if (this.root) this.root.lang = this.locale;
+  }
 
   private mount(): void {
     if (this.host) return;
@@ -312,6 +332,7 @@ export class PickAFeatureWidget {
     style.textContent = STYLES;
     this.shadow.append(style);
     this.root = el("div", { className: this.inline ? "pf-root pf-root-inline" : "pf-root" });
+    this.root.lang = this.locale;
     this.shadow.append(this.root);
     (this.inline ? this.resolveContainer() : document.body).append(this.host);
 
@@ -574,7 +595,7 @@ export class PickAFeatureWidget {
         ]),
         el("p", { className: "pf-item-desc" }, [req.description]),
         el("div", { className: "pf-item-meta" }, [
-          el("span", {}, [formatDate(req.createdAt)]),
+          el("span", {}, [formatDate(req.createdAt, this.locale)]),
           el("span", {}, [icon("comment"), s.comments]),
         ]),
       ]);
@@ -618,7 +639,7 @@ export class PickAFeatureWidget {
         el("div", { style: "min-width:0;flex:1" }, [
           el("h3", { className: "pf-detail-title" }, [live.title]),
           el("p", { className: "pf-detail-desc" }, [live.description]),
-          el("div", { className: "pf-detail-meta" }, [formatDate(live.createdAt)]),
+          el("div", { className: "pf-detail-meta" }, [formatDate(live.createdAt, this.locale)]),
         ]),
       ]),
     );
@@ -637,7 +658,7 @@ export class PickAFeatureWidget {
         const team = c.authorType === "admin";
         list.append(
           el("li", { className: "pf-comment", "data-team": String(team) }, [
-            el("div", { className: "pf-comment-meta" }, [el("b", {}, [team ? s.team : s.user]), el("span", {}, ["·"]), el("span", {}, [formatDate(c.createdAt)])]),
+            el("div", { className: "pf-comment-meta" }, [el("b", {}, [team ? s.team : s.user]), el("span", {}, ["·"]), el("span", {}, [formatDate(c.createdAt, this.locale)])]),
             el("p", { className: "pf-comment-text" }, [c.text]),
           ]),
         );

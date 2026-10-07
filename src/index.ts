@@ -15,9 +15,10 @@ import { PickAFeatureWidget, type PickAFeatureOptions, type Strings, type Theme 
 import { ApiClient, PickAFeatureError, clearLocalData, type FeatureComment, type FeatureRequest, type Identity } from "./api";
 
 export { PickAFeatureWidget, PickAFeatureError, ApiClient };
+export { LOCALES, LOCALE_NAMES, SUPPORTED_LOCALES, resolveLocale } from "./locales";
 export type { PickAFeatureOptions, Strings, Theme, FeatureComment, FeatureRequest, Identity };
 
-export const version = "0.1.1";
+export const version = "0.2.0";
 
 let instance: PickAFeatureWidget | null = null;
 
@@ -87,6 +88,7 @@ if (typeof document !== "undefined") {
       init({
         apiKey,
         theme: (ds.theme as Theme) || "auto",
+        locale: ds.locale || "auto",
         primaryColor: ds.primaryColor,
         launcher: ds.launcher === "false" ? false : { position: (ds.position as "bottom-right" | "bottom-left") || "bottom-right", label: ds.label },
         showEmailField: ds.emailField !== "false",

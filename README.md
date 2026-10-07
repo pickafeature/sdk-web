@@ -20,9 +20,10 @@ add up.
 ```
 
 Optional `data-` attributes on the script tag: `data-theme="light|dark|auto"`,
-`data-primary-color="#6366f1"`, `data-launcher="false"` (hide the floating
-button), `data-position="bottom-left"`, `data-label="Feedback"`,
-`data-email-field="false"`.
+`data-locale="auto|en|es|pt|fr|de|it|ja|ko|zh|ru|tr"` (UI language; `auto`
+follows the visitor's browser), `data-primary-color="#6366f1"`,
+`data-launcher="false"` (hide the floating button), `data-position="bottom-left"`,
+`data-label="Feedback"`, `data-email-field="false"`.
 
 ## npm
 
@@ -36,10 +37,11 @@ import PickAFeature from "pickafeature";
 PickAFeature.init({
   apiKey: "YOUR_API_KEY",
   theme: "auto",            // "light" | "dark" | "auto"
+  locale: "auto",           // "auto" follows the browser; or "es", "pt", "fr", "de", "it", "ja", "ko", "zh", "ru", "tr"
   primaryColor: "#6366f1",
   launcher: false,          // or true / { position: "bottom-right", label: "Feedback" }
   user: { id: currentUser.id, email: currentUser.email }, // optional
-  strings: { title: "What should we build next?" },       // any UI text
+  strings: { title: "What should we build next?" },       // override any UI text, on top of the locale
   onSubmit: ({ id, title }) => analytics.track("feature_request_submitted", { id, title }),
 });
 
