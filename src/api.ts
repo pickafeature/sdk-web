@@ -8,15 +8,16 @@ export const DEFAULT_BASE_URL = "https://pickafeature.com/api/v1/sdk";
 // Sent as x-sdk-version so the server can tell builds that render team
 // badges from older ones (which get a "Team:" prefix instead). Keep in sync
 // with package.json.
-export const SDK_VERSION = "0.3.2";
+export const SDK_VERSION = "0.4.0";
 
 const DEVICE_ID_KEY = "pickafeature_device_id";
 const UPVOTED_KEY = "pickafeature_upvoted_ids";
 
-// The API exposes only "approved" (planned / in progress on the dashboard) and
-// "completed" to SDK clients. Newly submitted requests are "pending" and are
-// not listed until they're reviewed.
-export type FeatureRequestStatus = "approved" | "completed";
+// Since 0.4.0 the API sends the dashboard's own statuses. "approved" is what
+// older servers or proxies may still send for planned + in progress; the
+// widget folds it into "planned". Newly submitted requests are "pending" and
+// are not listed until they're reviewed.
+export type FeatureRequestStatus = "planned" | "in progress" | "completed" | "approved";
 
 export interface FeatureRequest {
   id: string;

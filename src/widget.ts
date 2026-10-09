@@ -17,9 +17,11 @@ export interface Strings {
   title: string;
   subtitle: string;
   tabPlanned: string;
+  tabInProgress: string;
   tabCompleted: string;
   suggest: string;
   emptyPlanned: string;
+  emptyInProgress: string;
   emptyCompleted: string;
   formHelp: string;
   titleLabel: string;
@@ -57,9 +59,11 @@ export const DEFAULT_STRINGS: Strings = {
   title: "Feature requests",
   subtitle: "Vote for what we build next",
   tabPlanned: "Planned",
+  tabInProgress: "In progress",
   tabCompleted: "Completed",
   suggest: "Suggest a feature",
   emptyPlanned: "Nothing planned yet. Be the first to suggest something.",
+  emptyInProgress: "Nothing in progress right now.",
   emptyCompleted: "Shipped features will show up here.",
   formHelp: "Tell us what would make this product more useful for you. Approved requests appear on the board so others can vote on them.",
   titleLabel: "Title",
@@ -201,7 +205,7 @@ export class PickAFeatureWidget {
   private mediaQuery: MediaQueryList | null = null;
 
   private view: View = "list";
-  private tab: FeatureRequestStatus = "approved";
+  private tab: FeatureRequestStatus = "planned";
   private requests: FeatureRequest[] = [];
   private loaded = false;
   private loading = false;
@@ -374,6 +378,8 @@ export class PickAFeatureWidget {
     this.renderPanel();
     try {
       const list = await this.api.list();
+      // Older servers send "approved" for planned + in progress; show it as planned.
+      for (const r of list) if (r.status === "approved") r.status = "planned";
       // Team posts first so announcements are seen, then by votes, then newest.
       const team = (r: FeatureRequest) => (r.authorType === "admin" ? 1 : 0);
       list.sort((a, b) => team(b) - team(a) || b.upvotes - a.upvotes || b.createdAt.localeCompare(a.createdAt));
@@ -503,7 +509,8 @@ export class PickAFeatureWidget {
     const s = this.strings;
     const isRoot = this.view === "list";
     if (isRoot && this.inline && !s.title && !s.subtitle) return null;
-    const title = isRoot ? s.title : this.view === "form" ? s.suggest : this.tab === "completed" ? s.tabCompleted : s.tabPlanned;
+    const tabLabel = this.tab === "completed" ? s.tabCompleted : this.tab === "in progress" ? s.tabInProgress : s.tabPlanned;
+    const title = isRoot ? s.title : this.view === "form" ? s.suggest : tabLabel;
     const leading = isRoot
       ? null
       : (() => {
@@ -535,7 +542,8 @@ export class PickAFeatureWidget {
     const tabs = el("div", { className: "pf-tabs", role: "tablist" });
     (
       [
-        ["approved", s.tabPlanned],
+        ["planned", s.tabPlanned],
+        ["in progress", s.tabInProgress],
         ["completed", s.tabCompleted],
       ] as [FeatureRequestStatus, string][]
     ).forEach(([value, label]) => {
@@ -582,9 +590,9 @@ export class PickAFeatureWidget {
     if (visible.length === 0) {
       const empty = el("div", { className: "pf-empty" }, [
         icon("bulb"),
-        el("div", {}, [this.tab === "approved" ? s.emptyPlanned : s.emptyCompleted]),
+        el("div", {}, [this.tab === "planned" ? s.emptyPlanned : this.tab === "in progress" ? s.emptyInProgress : s.emptyCompleted]),
       ]);
-      if (this.tab === "approved") {
+      if (this.tab === "planned") {
         const b = el("button", { className: "pf-link", type: "button", style: "margin-top:8px" }, [s.suggest]);
         b.addEventListener("click", () => this.showForm());
         empty.append(b);
