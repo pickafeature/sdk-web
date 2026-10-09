@@ -596,6 +596,7 @@ export class PickAFeatureWidget {
       const main = el("button", { className: "pf-item-main", type: "button" }, [
         el("div", { className: "pf-item-head" }, [
           el("h3", { className: "pf-item-title" }, [req.title]),
+          req.authorType === "admin" ? el("span", { className: "pf-badge pf-badge-team" }, [s.team]) : null,
           req.status === "completed" ? el("span", { className: "pf-badge" }, [s.done]) : null,
         ]),
         el("p", { className: "pf-item-desc" }, [req.description]),
@@ -644,7 +645,10 @@ export class PickAFeatureWidget {
         el("div", { style: "min-width:0;flex:1" }, [
           el("h3", { className: "pf-detail-title" }, [live.title]),
           el("p", { className: "pf-detail-desc" }, [live.description]),
-          el("div", { className: "pf-detail-meta" }, [formatDate(live.createdAt, this.locale)]),
+          el("div", { className: "pf-detail-meta" }, [
+            live.authorType === "admin" ? el("span", { className: "pf-badge pf-badge-team", style: "margin-right:8px" }, [s.team]) : null,
+            formatDate(live.createdAt, this.locale),
+          ]),
         ]),
       ]),
     );

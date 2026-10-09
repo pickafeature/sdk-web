@@ -239,6 +239,7 @@ export const STYLES = `
 }
 .pf-item-meta { margin-top: 6px; display: flex; gap: 10px; align-items: center; font-size: 11.5px; color: var(--pf-muted); }
 .pf-item-meta svg { width: 12px; height: 12px; vertical-align: -2px; margin-right: 3px; }
+.pf-badge-team { background: color-mix(in srgb, var(--pf-primary) 14%, transparent) !important; color: var(--pf-primary) !important; }
 .pf-badge {
   flex: none;
   padding: 2px 8px;

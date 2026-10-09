@@ -20,6 +20,8 @@ export interface FeatureRequest {
   status: FeatureRequestStatus;
   upvotes: number;
   category: string | null;
+  /** "admin" when the project owner posted it from the dashboard. */
+  authorType?: string;
   createdAt: string;
 }
 

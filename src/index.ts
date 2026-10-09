@@ -18,7 +18,7 @@ export { PickAFeatureWidget, PickAFeatureError, ApiClient };
 export { LOCALES, LOCALE_NAMES, SUPPORTED_LOCALES, resolveLocale } from "./locales";
 export type { PickAFeatureOptions, Strings, Theme, FeatureComment, FeatureRequest, Identity };
 
-export const version = "0.2.1";
+export const version = "0.3.0";
 
 let instance: PickAFeatureWidget | null = null;
 
