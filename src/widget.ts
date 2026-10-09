@@ -665,10 +665,23 @@ export class PickAFeatureWidget {
       body.append(el("p", { className: "pf-help" }, [s.noComments]));
     } else if (this.comments) {
       const list = el("ul", { className: "pf-comments" });
+      // One level of threading: each top-level comment is followed by the
+      // team replies attached to it. Replies whose parent is gone show flat.
+      const replies = new Map<string, FeatureComment[]>();
       for (const c of this.comments) {
+        if (c.parentId) replies.set(c.parentId, [...(replies.get(c.parentId) || []), c]);
+      }
+      const ids = new Set(this.comments.map((c) => c.id));
+      const ordered: Array<{ c: FeatureComment; reply: boolean }> = [];
+      for (const c of this.comments) {
+        if (c.parentId && ids.has(c.parentId)) continue;
+        ordered.push({ c, reply: false });
+        for (const r of replies.get(c.id) || []) ordered.push({ c: r, reply: true });
+      }
+      for (const { c, reply } of ordered) {
         const team = c.authorType === "admin";
         list.append(
-          el("li", { className: "pf-comment", "data-team": String(team) }, [
+          el("li", { className: reply ? "pf-comment pf-comment-reply" : "pf-comment", "data-team": String(team) }, [
             el("div", { className: "pf-comment-meta" }, [el("b", {}, [team ? s.team : s.user]), el("span", {}, ["·"]), el("span", {}, [formatDate(c.createdAt, this.locale)])]),
             el("p", { className: "pf-comment-text" }, [c.text]),
           ]),

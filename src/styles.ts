@@ -298,6 +298,7 @@ export const STYLES = `
 .pf-section-title { margin: 20px 0 8px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--pf-muted); }
 .pf-comments { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .pf-comment { padding: 10px 12px; border: 1px solid var(--pf-border); border-radius: 10px; background: var(--pf-surface); }
+.pf-comment-reply { margin-left: 22px; }
 .pf-comment[data-team="true"] { border-color: color-mix(in srgb, var(--pf-primary) 40%, transparent); background: color-mix(in srgb, var(--pf-primary) 10%, transparent); }
 .pf-comment-meta { display: flex; gap: 6px; margin-bottom: 3px; font-size: 11px; color: var(--pf-muted); }
 .pf-comment-meta b { font-weight: 600; color: var(--pf-fg-muted); }
