@@ -700,11 +700,13 @@ export class PickAFeatureWidget {
           this.renderPanel();
           this.overlay?.querySelector<HTMLInputElement>(".pf-comment-form .pf-input")?.focus();
         });
+        // Users can only answer the team, not each other: the Reply action
+        // appears on team comments only.
         list.append(
           el("li", { className: reply ? "pf-comment pf-comment-reply" : "pf-comment", "data-team": String(team) }, [
             el("div", { className: "pf-comment-meta" }, [el("b", {}, [team ? s.team : s.user]), el("span", {}, ["·"]), el("span", {}, [formatDate(c.createdAt, this.locale)])]),
             el("p", { className: "pf-comment-text" }, [c.text]),
-            replyBtn,
+            team ? replyBtn : null,
           ]),
         );
       }
