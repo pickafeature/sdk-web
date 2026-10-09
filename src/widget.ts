@@ -374,7 +374,9 @@ export class PickAFeatureWidget {
     this.renderPanel();
     try {
       const list = await this.api.list();
-      list.sort((a, b) => b.upvotes - a.upvotes || b.createdAt.localeCompare(a.createdAt));
+      // Team posts first so announcements are seen, then by votes, then newest.
+      const team = (r: FeatureRequest) => (r.authorType === "admin" ? 1 : 0);
+      list.sort((a, b) => team(b) - team(a) || b.upvotes - a.upvotes || b.createdAt.localeCompare(a.createdAt));
       this.requests = list;
       this.loaded = true;
     } catch (err) {

@@ -5,6 +5,11 @@
 
 export const DEFAULT_BASE_URL = "https://pickafeature.com/api/v1/sdk";
 
+// Sent as x-sdk-version so the server can tell builds that render team
+// badges from older ones (which get a "Team:" prefix instead). Keep in sync
+// with package.json.
+export const SDK_VERSION = "0.3.1";
+
 const DEVICE_ID_KEY = "pickafeature_device_id";
 const UPVOTED_KEY = "pickafeature_upvoted_ids";
 
@@ -123,6 +128,7 @@ export class ApiClient {
         headers: {
           "Content-Type": "application/json",
           "x-api-key": this.apiKey,
+          "x-sdk-version": SDK_VERSION,
           ...(init.headers || {}),
         },
       });

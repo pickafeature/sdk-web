@@ -12,13 +12,13 @@
 //    PickAFeature.open();
 
 import { PickAFeatureWidget, type PickAFeatureOptions, type Strings, type Theme } from "./widget";
-import { ApiClient, PickAFeatureError, clearLocalData, type FeatureComment, type FeatureRequest, type Identity } from "./api";
+import { ApiClient, PickAFeatureError, SDK_VERSION, clearLocalData, type FeatureComment, type FeatureRequest, type Identity } from "./api";
 
 export { PickAFeatureWidget, PickAFeatureError, ApiClient };
 export { LOCALES, LOCALE_NAMES, SUPPORTED_LOCALES, resolveLocale } from "./locales";
 export type { PickAFeatureOptions, Strings, Theme, FeatureComment, FeatureRequest, Identity };
 
-export const version = "0.3.0";
+export const version = SDK_VERSION;
 
 let instance: PickAFeatureWidget | null = null;
 
