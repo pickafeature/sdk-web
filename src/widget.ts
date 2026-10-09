@@ -612,7 +612,7 @@ export class PickAFeatureWidget {
         el("p", { className: "pf-item-desc" }, [req.description]),
         el("div", { className: "pf-item-meta" }, [
           el("span", {}, [formatDate(req.createdAt, this.locale)]),
-          el("span", {}, [icon("comment"), s.comments]),
+          el("span", {}, [icon("comment"), req.commentsCount == null ? s.comments : String(req.commentsCount)]),
         ]),
       ]);
       main.addEventListener("click", () => void this.openDetail(req));
