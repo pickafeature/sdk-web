@@ -41,6 +41,8 @@ export interface Strings {
   noComments: string;
   commentPlaceholder: string;
   post: string;
+  reply: string;
+  replyingTo: string;
   team: string;
   user: string;
   done: string;
@@ -83,6 +85,8 @@ export const DEFAULT_STRINGS: Strings = {
   noComments: "No comments yet. Start the conversation.",
   commentPlaceholder: "Add a comment…",
   post: "Post",
+  reply: "Reply",
+  replyingTo: "Replying to",
   team: "Team",
   user: "User",
   done: "Done",
@@ -215,6 +219,7 @@ export class PickAFeatureWidget {
   private selected: FeatureRequest | null = null;
   private comments: FeatureComment[] | null = null;
   private commentsError = "";
+  private replyTo: FeatureComment | null = null;
   private formError = "";
   private submitting = false;
   private notice = "";
@@ -446,6 +451,7 @@ export class PickAFeatureWidget {
     this.comments = null;
     this.commentsError = "";
     this.view = "detail";
+    this.replyTo = null;
     this.renderPanel();
     try {
       const list = await this.api.comments(req.id);
@@ -688,16 +694,39 @@ export class PickAFeatureWidget {
       }
       for (const { c, reply } of ordered) {
         const team = c.authorType === "admin";
+        const replyBtn = el("button", { className: "pf-link pf-comment-reply-btn", type: "button" }, [s.reply]);
+        replyBtn.addEventListener("click", () => {
+          this.replyTo = c;
+          this.renderPanel();
+          this.overlay?.querySelector<HTMLInputElement>(".pf-comment-form .pf-input")?.focus();
+        });
         list.append(
           el("li", { className: reply ? "pf-comment pf-comment-reply" : "pf-comment", "data-team": String(team) }, [
             el("div", { className: "pf-comment-meta" }, [el("b", {}, [team ? s.team : s.user]), el("span", {}, ["·"]), el("span", {}, [formatDate(c.createdAt, this.locale)])]),
             el("p", { className: "pf-comment-text" }, [c.text]),
+            replyBtn,
           ]),
         );
       }
       body.append(list);
     }
 
+    // Replying inside a thread: show who, with a way out. The server folds a
+    // reply to a reply onto the same top-level comment.
+    if (this.replyTo) {
+      const target = this.replyTo;
+      const cancel = el("button", { className: "pf-link", type: "button", "aria-label": s.cancel }, [icon("close")]);
+      cancel.addEventListener("click", () => {
+        this.replyTo = null;
+        this.renderPanel();
+      });
+      body.append(
+        el("div", { className: "pf-replying" }, [
+          el("span", {}, [`${s.replyingTo} `, el("b", {}, [target.authorType === "admin" ? s.team : s.user])]),
+          cancel,
+        ]),
+      );
+    }
     const input = el("input", { className: "pf-input", type: "text", maxlength: "5000", placeholder: s.commentPlaceholder });
     const post = el("button", { className: "pf-btn pf-btn-primary", type: "submit", "aria-label": s.post }, [icon("send")]);
     const form = el("form", { className: "pf-comment-form" }, [input, post]);
@@ -707,8 +736,10 @@ export class PickAFeatureWidget {
       if (!text) return;
       post.disabled = true;
       try {
-        const created = await this.api.addComment(live.id, text);
+        const parent = this.replyTo ? this.replyTo.parentId || this.replyTo.id : null;
+        const created = await this.api.addComment(live.id, text, parent);
         this.comments = [...(this.comments || []), created];
+        this.replyTo = null;
         this.notice = "";
         this.opts.onComment?.({ featureRequestId: live.id, id: created.id });
       } catch (err) {

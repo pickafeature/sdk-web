@@ -8,7 +8,7 @@ export const DEFAULT_BASE_URL = "https://pickafeature.com/api/v1/sdk";
 // Sent as x-sdk-version so the server can tell builds that render team
 // badges from older ones (which get a "Team:" prefix instead). Keep in sync
 // with package.json.
-export const SDK_VERSION = "0.4.1";
+export const SDK_VERSION = "0.5.0";
 
 const DEVICE_ID_KEY = "pickafeature_device_id";
 const UPVOTED_KEY = "pickafeature_upvoted_ids";
@@ -210,12 +210,13 @@ export class ApiClient {
     return data.comments || [];
   }
 
-  async addComment(featureRequestId: string, text: string): Promise<FeatureComment> {
+  /** `parentId` makes this a reply inside that comment's thread (one level deep). */
+  async addComment(featureRequestId: string, text: string, parentId?: string | null): Promise<FeatureComment> {
     return this.request<FeatureComment>(
       "/comments",
       {
         method: "POST",
-        body: JSON.stringify({ featureRequestId, text, ...this.who() }),
+        body: JSON.stringify({ featureRequestId, text, ...(parentId ? { parentId } : {}), ...this.who() }),
       },
       "Couldn't post your comment",
     );
